@@ -1,48 +1,14 @@
-import requests
-import csv
-
-def buscar_repositorios(usuario):
-    url = f"https://api.github.com/users/{usuario}/repos"
-    resposta = requests.get(url)
-
-    if resposta.status_code == 200:
-        return resposta.json()
-    else:
-        print("❌ Erro ao buscar repositórios.")
-        return []
+from github_api import buscar_repositorios
+from exporter import exportar_csv
 
 def exibir_repositorios(repos):
-    if not repos:
-        print("⚠️ Nenhum repositório encontrado.")
-        return
-
-    print(f"\n📂 {len(repos)} repositórios encontrados:\n")
     for repo in repos:
         nome = repo['name']
+        link = repo['html_url']
         estrelas = repo['stargazers_count']
         linguagem = repo['language'] or "N/A"
-        link = repo['html_url']
-
-        print(f"🔹 {nome:25} ⭐ {estrelas:<3}   🛠 {linguagem}")
-        print(f"   📎 {link}\n")
-
-def exportar_csv(repos, usuario):
-    nome_arquivo = f"{usuario}_repositorios.csv"
-    campos = ['name', 'html_url', 'stargazers_count', 'language']
-
-    with open(nome_arquivo, mode='w', newline='', encoding='utf-8') as arquivo:
-        escritor = csv.DictWriter(arquivo, fieldnames=campos)
-        escritor.writeheader()
-
-        for repo in repos:
-            escritor.writerow({
-                'name': repo['name'],
-                'html_url': repo['html_url'],
-                'stargazers_count': repo['stargazers_count'],
-                'language': repo['language'] or "N/A"
-            })
-
-    print(f"\n✅ Exportado com sucesso para '{nome_arquivo}'")
+        print(f"\n📁 {nome:25} ⭐ {estrelas:<3} 🧠 {linguagem}")
+        print(f"🔗 {link}\n")
 
 def menu():
     usuario = input("👤 Digite o nome de usuário do GitHub: ")
@@ -58,7 +24,11 @@ def menu():
         if opcao == '1':
             exibir_repositorios(repos)
         elif opcao == '2':
-            exportar_csv(repos, usuario)
+            nome_arquivo = exportar_csv(repos, usuario)
+            if nome_arquivo:
+                print(f"✅ Arquivo '{nome_arquivo}' exportado com sucesso!")
+            else:
+                print("❌ Falha ao exportar o arquivo.")
         elif opcao == '3':
             print("👋 Saindo...")
             break
