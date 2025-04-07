@@ -10,6 +10,12 @@ This Python project fetches and displays all public repositories of a given GitH
 
 ## 🚀 How to run
 
-```bash
+```
 pip install -r requirements.txt
 python3 main.py
+```
+## How to test
+
+```
+PYTHONPATH=. pytest tests/
+```
